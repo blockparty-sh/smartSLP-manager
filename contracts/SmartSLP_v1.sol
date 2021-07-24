@@ -35,7 +35,7 @@ import "openzeppelin-solidity/contracts/access/Ownable.sol";
  * team to mitigate the well-known issues around setting allowances.
  * See {IERC20-approve}.
  */
-contract TutorialToken is ERC20Burnable, Ownable {
+contract SmartSLP_v1 is ERC20Burnable, Ownable {
     string private _documentUri;
     bytes32 private _documentHash;
     uint8 private _decimals;

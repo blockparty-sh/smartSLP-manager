@@ -11,11 +11,11 @@ const App = {
             web3 = new Web3(this.web3Provider);
         }
 
-        const response = await fetch('TutorialToken.json');
-        const TutorialTokenArtifact = await response.json();
+        const response = await fetch('SmartSLP_v1.json');
+        const SmartSLP_v1Artifact = await response.json();
 
-        this.contracts.TutorialToken = TruffleContract(TutorialTokenArtifact);
-        this.contracts.TutorialToken.setProvider(this.web3Provider);
+        this.contracts.SmartSLP_v1 = TruffleContract(SmartSLP_v1Artifact);
+        this.contracts.SmartSLP_v1.setProvider(this.web3Provider);
 
         return this.bindEvents();
     },
@@ -73,7 +73,6 @@ const App = {
         });
 
         const manageTokenForm = document.querySelector('form#manageTokenForm');
-
         manageTokenForm.addEventListener('submit', async (evt) => {
             evt.preventDefault();
             that.reloadManageToken();
@@ -84,15 +83,14 @@ const App = {
         const that = this;
         const tokenAddress = manageTokenForm.querySelector('#manageToken_contractAddress').value;
 
-        const contract = await App.contracts.TutorialToken.at(tokenAddress)
-
+        const account = await this.getAccount();
 
         const tokenStatsData = document.querySelector('#tokenStatsData');
         const manageTokenData = document.querySelector('#manageTokenData');
         tokenStatsData.innerHTML = '';
         manageTokenData.innerHTML = '';
 
-        const account = await this.getAccount();
+        const contract = await App.contracts.SmartSLP_v1.at(tokenAddress)
 
         const totalSupply = await contract.totalSupply();
         const owner       = await contract.owner();
@@ -138,119 +136,126 @@ const App = {
             manageTokenData.appendChild(section);
         }
 
-        const burnForm = document.createElement('form');
-        burnForm.id = 'burnForm';
-        burnForm.innerHTML = `
-            <h3>Burn Tokens</h3>
+        {
+            const burnForm = document.createElement('form');
+            burnForm.id = 'burnForm';
+            burnForm.innerHTML = `
+                <h3>Burn Tokens</h3>
 
-            <div>
-                <label for="burnForm_amount">Amount:</label>
-                <input type="number" id="burnForm_amount" value="0" min="0" max="${balance}">
-            </div>
+                <div>
+                    <label for="burnForm_amount">Amount:</label>
+                    <input type="number" id="burnForm_amount" value="0" min="0" max="${balance}">
+                </div>
 
-            <button type="submit">Burn</button>
-        `;
-        burnForm.addEventListener('submit', async (evt) => {
-            evt.preventDefault();
-
-            const amount = burnForm.querySelector('#burnForm_amount').value;
-
-            const tx = await contract.burn(amount, {
-                from: account,
-            });
-
-            console.log(tx);
-
-            reloadManageToken();
-        });
-
-        appendManageForm(burnForm);
-
-        const mintForm = document.createElement('form');
-        mintForm.id = 'mintForm';
-        mintForm.innerHTML = `
-            <h3>Mint Tokens</h3>
-
-            <div>
-                <label for="mintForm_address">Address:</label>
-                <input type="text" id="mintForm_address" value="${account}">
-            </div>
-
-            <div>
-                <label for="mintForm_amount">Amount:</label>
-                <input type="number" id="mintForm_amount" value="1">
-            </div>
-
-            ${isOwner ? '<button type="submit">Mint</button>' : 'You are not owner'}
-        `;
-        if (isOwner) {
-            mintForm.addEventListener('submit', async (evt) => {
+                <button type="submit">Burn</button>
+            `;
+            burnForm.addEventListener('submit', async (evt) => {
                 evt.preventDefault();
 
-                const address = mintForm.querySelector('#mintForm_address').value;
-                const amount = mintForm.querySelector('#mintForm_amount').value;
+                const amount = burnForm.querySelector('#burnForm_amount').value;
 
-                const tx = await contract.mint(address, amount, {
+                const tx = await contract.burn(amount, {
                     from: account,
                 });
 
                 console.log(tx);
+
                 that.reloadManageToken();
             });
+
+            appendManageForm(burnForm);
         }
 
-        appendManageForm(mintForm);
+        {
+            const mintForm = document.createElement('form');
+            mintForm.id = 'mintForm';
+            mintForm.innerHTML = `
+                <h3>Mint Tokens</h3>
 
+                <div>
+                    <label for="mintForm_address">Address:</label>
+                    <input type="text" id="mintForm_address" value="${account}">
+                </div>
 
-        const transferOwnershipForm = document.createElement('form');
-        transferOwnershipForm.id = 'transferOwnership';
-        transferOwnershipForm.innerHTML = `
-            <h3>Transfer Ownership</h3>
-            
-            <div>
-                <label for="transferOwnership_address">Address:</label>
-                <input type="text" id="transferOwnership_address" value="${account}">
-            </div>
+                <div>
+                    <label for="mintForm_amount">Amount:</label>
+                    <input type="number" id="mintForm_amount" value="1">
+                </div>
 
-            ${isOwner ? '<button type="submit">Transfer Ownership</button>' : 'You are not owner'}
-        `;
-        if (isOwner) {
-            transferOwnershipForm.addEventListener('submit', async (evt) => {
-                evt.preventDefault();
+                ${isOwner ? '<button type="submit">Mint</button>' : 'You are not owner'}
+            `;
+            if (isOwner) {
+                mintForm.addEventListener('submit', async (evt) => {
+                    evt.preventDefault();
 
-                const address = transferOwnershipForm.querySelector('#transferOwnership_address').value;
+                    const address = mintForm.querySelector('#mintForm_address').value;
+                    const amount = mintForm.querySelector('#mintForm_amount').value;
 
-                const tx = await contract.transferOwnership(address, {
-                    from: account,
+                    const tx = await contract.mint(address, amount, {
+                        from: account,
+                    });
+
+                    console.log(tx);
+                    that.reloadManageToken();
                 });
+            }
 
-                console.log(tx);
-                that.reloadManageToken();
-            });
+            appendManageForm(mintForm);
         }
 
-        appendManageForm(transferOwnershipForm);
+        {
+            const transferOwnershipForm = document.createElement('form');
+            transferOwnershipForm.id = 'transferOwnership';
+            transferOwnershipForm.innerHTML = `
+                <h3>Transfer Ownership</h3>
+                
+                <div>
+                    <label for="transferOwnership_address">Address:</label>
+                    <input type="text" id="transferOwnership_address" value="${account}">
+                </div>
 
-        const renounceOwnershipForm = document.createElement('form');
-        renounceOwnershipForm.id = 'renounceOwnershipForm';
-        renounceOwnershipForm.innerHTML = `
-            <h3>Renounce Ownership</h3>
-            ${isOwner ? '<button type="submit">Renounce Ownership</button>' : 'You are not owner'}
-        `;
-        if (isOwner) {
-            renounceOwnershipForm.addEventListener('submit', async (evt) => {
-                evt.preventDefault();
+                ${isOwner ? '<button type="submit">Transfer Ownership</button>' : 'You are not owner'}
+            `;
+            if (isOwner) {
+                transferOwnershipForm.addEventListener('submit', async (evt) => {
+                    evt.preventDefault();
 
-                const tx = await contract.renounceOwnership({
-                    from: account,
+                    const address = transferOwnershipForm.querySelector('#transferOwnership_address').value;
+
+                    const tx = await contract.transferOwnership(address, {
+                        from: account,
+                    });
+
+                    console.log(tx);
+                    that.reloadManageToken();
                 });
+            }
 
-                console.log(tx);
-                that.reloadManageToken();
-            });
+            appendManageForm(transferOwnershipForm);
         }
 
-        appendManageForm(renounceOwnershipForm);
+        {
+            const renounceOwnershipForm = document.createElement('form');
+            renounceOwnershipForm.id = 'renounceOwnershipForm';
+            renounceOwnershipForm.innerHTML = `
+                <h3>Renounce Ownership</h3>
+                ${isOwner ? '<button type="submit">Renounce Ownership</button>' : 'You are not owner'}
+            `;
+            if (isOwner) {
+                renounceOwnershipForm.addEventListener('submit', async (evt) => {
+                    evt.preventDefault();
+
+                    const tx = await contract.renounceOwnership({
+                        from: account,
+                    });
+
+                    console.log(tx);
+                    that.reloadManageToken();
+                });
+            }
+
+            appendManageForm(renounceOwnershipForm);
+        }
     },
 
     getAccount: async function() {
@@ -302,7 +307,7 @@ const App = {
     ) {
         const account = await this.getAccount();
 
-        const contract = await this.contracts.TutorialToken.new(
+        const contract = await this.contracts.SmartSLP_v1.new(
             tokenName,
             tokenSymbol,
             documentUri,
