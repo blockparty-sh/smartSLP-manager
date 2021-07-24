@@ -1,0 +1,81 @@
+body {
+    font: 1.3rem sans-serif;
+    font-family: 'Noto Sans JP', sans-serif;
+    padding: 0.5em;
+    margin: 0;
+    background-color: #222;
+    background-image: url(/img/bg.png);
+}
+
+section {
+    position: relative;
+    width: 740px;
+    margin: 20px auto;
+    padding: 3em;
+    padding: 1em 3em 1em 3em;
+    box-sizing: border-box;
+    background: #FFF;
+    display: grid;
+    grid-gap: 2rem;
+    grid-template-columns: repeat(1, 1fr);
+    box-shadow: 10px 10px 0px #171722;
+    border-radius: 2px;
+}
+
+form {
+    position: relative;
+    width: 100%;
+    box-sizing: border-box;
+    display: grid;
+    grid-gap: 2rem;
+    grid-template-columns: repeat(1, 1fr);
+}
+
+label {
+    font-size: .8em;
+}
+
+input {
+    font: 1.2em/1.3em "Noto Sans JP", sans-serif;
+    border-radius: 5px;
+    border: 1px dotted rgba(0, 0, 0, 0.1);
+    padding: 0 10px;
+    margin: 0;
+    width: 70%;
+    float:right;
+    background: none;
+}
+
+input::placeholder {
+    font-size: 0.8em;
+}
+
+input:focus {
+    background: rgba(0,0,0,.1);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    outline: 0;
+}
+
+button {
+    width: 100%;
+    padding: 1rem;
+    font-size: 2rem;
+    color: #222;
+    background-color: #fff;
+    border: 2px solid #222;
+    box-shadow: 8px 7px 0px #373742;
+    border-radius: 2px;
+}
+
+button:hover {
+    cursor: pointer;
+}
+
+button:active {
+    box-shadow: 6px 5px 0px #373742;
+    box-shadow: 7px 6px 0px #373742;
+}
+
+.breakable {
+    word-break: break-all;
+}

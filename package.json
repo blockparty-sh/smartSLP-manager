@@ -1,0 +1,21 @@
+{
+  "name": "smartbch-token-manager",
+  "version": "1.0.0",
+  "description": "",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "dev": "lite-server",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "lite-server": "^2.3.0",
+    "truffle": "^5.4.2"
+  },
+  "dependencies": {
+    "openzeppelin-solidity": "^4.2.0"
+  }
+}
