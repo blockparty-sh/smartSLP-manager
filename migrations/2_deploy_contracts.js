@@ -1,5 +1,13 @@
-var SmartSLP_V1 = artifacts.require("SmartSLP_V1");
+var SmartSLP_V1 = artifacts.require("SmartSLP_v1");
 
 module.exports = function(deployer) {
-  deployer.deploy(SmartSLP_V1, "test 2", "t2", "documenturi", Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex'), 18, 1000);
+  deployer.deploy(
+      SmartSLP_V1,
+      "test token",
+      "tt",
+      "http://example.com",
+      "0x0000000000000000000000000000000000000000000000000000000000000000",
+      18,
+      1000
+  );
 };
