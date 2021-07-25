@@ -9,9 +9,8 @@ body {
 
 section {
     position: relative;
-    width: 740px;
+    width: 940px;
     margin: 20px auto;
-    padding: 3em;
     padding: 1em 3em 1em 3em;
     box-sizing: border-box;
     background: #FFF;
@@ -78,4 +77,68 @@ button:active {
 
 .breakable {
     word-break: break-all;
+}
+
+#modal {
+    display: none;
+}
+
+.modal-open #modal {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(1px);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    transition: all 0.5s ease;
+}
+
+.modal-open #modal #modal-content {
+    position: relative;
+    width: 500px;
+    height: 400px;
+    background-color: #fff;
+    box-shadow: 10px 10px 0px #171722;
+    display: grid;
+    grid-gap: 1rem;
+    grid-template-columns: repeat(1, 1fr);
+    padding: 1em;
+    box-sizing: border-box;
+}
+
+#modal #modal-close {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    width: 50px;
+    height: 50px;
+    background-color: #000;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    font-weight: 900;
+}
+
+#modal #modal-close:hover {
+    cursor: pointer;
+}
+
+pre {
+    font-size: 0.8rem;
+}
+
+a {
+    color: #499ac1;
+}
+
+a:hover {
+    color: #499ac1;
 }

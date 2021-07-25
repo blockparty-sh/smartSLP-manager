@@ -23,6 +23,10 @@ const App = {
     bindEvents: function() {
         const that = this;
 
+        document.querySelector('#modal-close').addEventListener('click', function() {
+            document.querySelector('body').classList.remove('modal-open');
+        });
+
         const createTokenForm = document.querySelector('form#createTokenForm');
         const createTokenData = document.querySelector('#createTokenData');
         createTokenForm.addEventListener('submit', async (evt) => {
@@ -59,11 +63,13 @@ const App = {
                 tokenImage,
             );
 
-            createTokenData.innerHTML = `
-                Contract address: ${contract.address}
+            that.showModal('Token Created', `
+                Make sure to save your contract address:
                 <br>
-                Transaction Hash: ${contract.transactionHash}
-            `;
+                <pre>${contract.address}</pre>
+                <br>
+                <a href="#${contract.transactionHash}">View on Explorer</a>
+            `);
 
             manageTokenForm.querySelector('#manageToken_contractAddress').value = contract.address;
 
@@ -77,6 +83,13 @@ const App = {
             evt.preventDefault();
             that.reloadManageToken();
         });
+    },
+
+    showModal: function(title, content) {
+        document.getElementById('modal-title').innerHTML = title;
+        document.getElementById('modal-text').innerHTML = content;
+
+        document.querySelector('body').classList.add('modal-open');
     },
 
     reloadManageToken: async function() {
@@ -259,11 +272,19 @@ const App = {
     },
 
     getAccount: async function() {
+        const that = this;
+
         return new Promise((resolve, reject) => {
-            web3.eth.getAccounts((error, accounts) => {
+            web3.eth.getAccounts(async (error, accounts) => {
                 if (error) {
                     reject(error);
                 }
+
+                if (accounts.length === 0) {
+                    await ethereum.request({ method: 'eth_requestAccounts' });
+                    return await that.getAccount();
+                }
+
 
                 resolve(accounts[0]);
             });

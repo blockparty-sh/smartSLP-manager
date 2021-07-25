@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>smartSLP Token Manager</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="css/style.css">
+    </head>
+    <body class="">
+        <section>
+            <h1>smartSLP Token Manager Help</h1>
+            <p><a href="/">Click here to go back</a></p>
+        </section>
+
+        <section>
+            <h2>What is smartSLP?</h2>
+            <p>
+            smartSLP are simple ERC20 tokens that have the ability for the creator to mint new tokens (and end the ability to issue new tokens) and for users to burn tokens. They also have a predictable supply mechanism (they are created with X tokens off the bat), whereas ERC20 does not specify a supply mechanism. For tokens that do not need advanced smart contract capability, creating a token using smartSLP is likely all you need to do to start. smartSLP tokens also allow for the inclusion of documentUri's, which makes it easy to notarize something.
+            </p>
+            <p>
+            smartSLP is built on top of smartBCH. By maintaining the smartBCH interface, you can customize this smartSLP manager and add additional advanced functionality on-top of what smartSLP already provides. The manager interface made for smartSLP is designed to be incredibly simple to extend for any additional management of custom token functionality added (such as staking mechanisms, voting, etc.).
+            </p>
+        </section>
+
+        <section>
+            <h2>Setup for Local Testing</h2>
+
+            <h3>Installing Ganache</h3>
+            <p>
+            Download <a href="https://www.trufflesuite.com/ganache">Ganache</a> and start it. Choose "Quickstart Ethereum". Ganache is a graphical application that runs a blockchain that can be used for testing purposes. It runs on 127.0.0.1:7545.
+            </p>
+
+            <h3>Installing MetaMask</h3>
+            <p>
+            To install MetaMask for Chrome, go to the <a href="https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn" target="_blank">Chrome Web Store</a> and click the Add to Chrome button.
+            </p>
+
+            <p>
+            To install MetaMask for FireFox, go to the <a href="https://addons.mozilla.org/en-US/firefox/addon/ether-metamask/" target="_blank">Firefox Add-ons page</a> and click the Add to Firefox button.
+            </p>
+
+            <h3>Configure MetaMask to use Ganache</h3>
+            <p>
+            To use Ganache with MetaMask, click the MetaMask icon in your browser and this screen will appear:
+            <br>
+            <img src="/img/metamask-create-password.png">
+            </p>
+
+            <p>
+            Click Import with seed phrase. In the box marked Wallet Seed, enter the mnemonic that was displayed when launching Ganache.
+            <br>
+            <img src="/img/metamask-seed-phrase.png">
+            </p>
+
+            <p>
+            Now we need to connect MetaMask to the blockchain created by Ganache. Click the menu that shows "Main Network" and select Custom RPC.
+            <br>
+            <img src="/img/metamask-select-network.png">
+            </p>
+
+            <p>
+            In the box titled "New RPC URL" (to the right of "New Network") enter http://127.0.0.1:7545 and click Save.
+            </p>
+
+            <p>
+            The network name at the top will switch to say "Private Network". Click the cross in the top-right of the current window close out of the page and return to the Accounts page.
+            </p>
+
+            <p>
+            You are now ready to create a token!
+            </p>
+        </section>
+
+        <section>
+            <h2>Create Mainnet Token</h2>
+
+            <p>Wait for smartBCH to launch :)<p>
+        </section>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.4.0/web3.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@truffle/contract@4.3.25/dist/truffle-contract.js"></script>
+        <script src="js/app.js"></script>
+    </body>
+</html>
+

@@ -4,15 +4,16 @@
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>smartBCH Token Manager</title>
+        <title>smartSLP Token Manager</title>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="css/style.css">
     </head>
-    <body>
+    <body class="">
         <section>
-            <h1>smartBCH Token Manager</h1>
+            <h1>smartSLP Token Manager</h1>
+            <p>Create ERC20 compatible tokens with SLP functionality. <a href="/help.html">Instructions / Help!</a></p>
         </section>
 
         <section>
@@ -53,8 +54,6 @@
                     <button type="submit">Create Token</button>
                 </div>
             </form>
-
-            <p id="createTokenData" class="breakable"></p>
         </section>
 
         <section>
@@ -75,6 +74,16 @@
         </section>
 
         <div id="manageTokenData"></div>
+
+        <div id="modal">
+            <div id="modal-content">
+                <div id="modal-close">X</div>
+                <h2 id="modal-title"></h2>
+                <div>
+                    <p id="modal-text" class="breakable"></p>
+                </div>
+            </div>
+        </div>
         
         <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.4.0/web3.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/@truffle/contract@4.3.25/dist/truffle-contract.js"></script>
