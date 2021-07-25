@@ -66,7 +66,7 @@ contract SmartSLP_NFT is Context, ERC721Enumerable, ERC721Burnable, Ownable {
     }
 
     function isNftParent() public view virtual returns (bool) {
-        return _nftParent != 0x0;
+        return _nftParent != address(0x0);
     }
 
     function nftParent() public view virtual returns (address) {
