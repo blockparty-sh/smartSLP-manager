@@ -1,4 +1,4 @@
-# smartBCH Token Manager
+# smartSLP Token Manager
 
 Token creation and management system for smartBCH, inspired by SLP and fully ERC20 compatible.
 
