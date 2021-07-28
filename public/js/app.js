@@ -3,12 +3,25 @@ const App = {
     contracts: {},
 
     init: async function() {
-        if (typeof web3 !== 'undefined') {
-            this.web3Provider = web3.currentProvider;
-            web3 = new Web3(web3.currentProvider);
-        } else {
+        if (typeof web3 === 'undefined') {
+            this.showModal('Install MetaMask', `
+                <p>
+                This app requires MetaMask to be installed
+                </p>
+
+                <p>
+                Download from <a href="https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn" target="_blank">Chrome Web Store</a>
+                </p>
+
+                <p>
+                Download from <a href="https://addons.mozilla.org/en-US/firefox/addon/ether-metamask/" target="_blank">Firefox Add-ons page</a>
+                </p>
+            `);
             this.web3Provider = new Web3.providers.HttpProvider('http://127.0.0.1:9545');
             web3 = new Web3(this.web3Provider);
+        } else {
+            this.web3Provider = web3.currentProvider;
+            web3 = new Web3(web3.currentProvider);
         }
 
         const response = await fetch('SmartSLP_v1.json');
@@ -20,6 +33,7 @@ const App = {
         return this.bindEvents();
     },
 
+    // set up base page to listen to events
     bindEvents: function() {
         const that = this;
 
@@ -28,7 +42,8 @@ const App = {
         });
 
         const createTokenForm = document.querySelector('form#createTokenForm');
-        const createTokenData = document.querySelector('#createTokenData');
+        const manageTokenForm = document.querySelector('form#manageTokenForm');
+
         createTokenForm.addEventListener('submit', async (evt) => {
             evt.preventDefault();
 
@@ -73,18 +88,19 @@ const App = {
 
             manageTokenForm.querySelector('#manageToken_contractAddress').value = contract.address;
 
-            that.reloadManageToken();
+            that.reloadManageToken(contract.address);
 
             return;
         });
 
-        const manageTokenForm = document.querySelector('form#manageTokenForm');
         manageTokenForm.addEventListener('submit', async (evt) => {
             evt.preventDefault();
-            that.reloadManageToken();
+            const contractAddress = manageTokenForm.querySelector('#manageToken_contractAddress').value;
+            that.reloadManageToken(contractAddress);
         });
     },
 
+    // this can be used for error or information display
     showModal: function(title, content) {
         document.getElementById('modal-title').innerHTML = title;
         document.getElementById('modal-text').innerHTML = content;
@@ -92,9 +108,11 @@ const App = {
         document.querySelector('body').classList.add('modal-open');
     },
 
-    reloadManageToken: async function() {
+    // this is used to reload/recreate the management panels
+    // either called after tx that modifies the token
+    // or when the manage token form is submitted with a contract address
+    reloadManageToken: async function(contractAddress) {
         const that = this;
-        const tokenAddress = manageTokenForm.querySelector('#manageToken_contractAddress').value;
 
         const account = await this.getAccount();
 
@@ -103,7 +121,7 @@ const App = {
         tokenStatsData.innerHTML = '';
         manageTokenData.innerHTML = '';
 
-        const contract = await App.contracts.SmartSLP_v1.at(tokenAddress)
+        const contract = await App.contracts.SmartSLP_v1.at(contractAddress)
 
         const totalSupply = await contract.totalSupply();
         const owner       = await contract.owner();
@@ -143,16 +161,24 @@ const App = {
         }
         tokenStatsData.append(tokenStatsTable);
 
-        function appendManageForm(form) {
+
+        // this can be used to add additional maintenance panels
+        function createManager(formId, html, submitListenerFn) {
+            const form = document.createElement('form');
+            form.id = formId;
+            form.innerHTML = html;
+            form.addEventListener('submit', async (evt) => {
+                evt.preventDefault();
+                return submitListenerFn(evt);
+            });
+
             const section = document.createElement('section');
             section.appendChild(form);
             manageTokenData.appendChild(section);
         }
 
         {
-            const burnForm = document.createElement('form');
-            burnForm.id = 'burnForm';
-            burnForm.innerHTML = `
+            const template = `
                 <h3>Burn Tokens</h3>
 
                 <div>
@@ -162,9 +188,8 @@ const App = {
 
                 <button type="submit">Burn</button>
             `;
-            burnForm.addEventListener('submit', async (evt) => {
-                evt.preventDefault();
 
+            createManager('burnForm', template, async (evt) => {
                 const amount = burnForm.querySelector('#burnForm_amount').value;
 
                 const tx = await contract.burn(amount, {
@@ -173,16 +198,12 @@ const App = {
 
                 console.log(tx);
 
-                that.reloadManageToken();
+                that.reloadManageToken(contractAddress);
             });
-
-            appendManageForm(burnForm);
         }
 
         {
-            const mintForm = document.createElement('form');
-            mintForm.id = 'mintForm';
-            mintForm.innerHTML = `
+            const template = `
                 <h3>Mint Tokens</h3>
 
                 <div>
@@ -197,10 +218,9 @@ const App = {
 
                 ${isOwner ? '<button type="submit">Mint</button>' : 'You are not owner'}
             `;
-            if (isOwner) {
-                mintForm.addEventListener('submit', async (evt) => {
-                    evt.preventDefault();
 
+            createManager('mintForm', template, async (evt) => {
+                if (isOwner) {
                     const address = mintForm.querySelector('#mintForm_address').value;
                     const amount = mintForm.querySelector('#mintForm_amount').value;
 
@@ -209,17 +229,13 @@ const App = {
                     });
 
                     console.log(tx);
-                    that.reloadManageToken();
-                });
-            }
-
-            appendManageForm(mintForm);
+                    that.reloadManageToken(contractAddress);
+                }
+            });
         }
 
         {
-            const transferOwnershipForm = document.createElement('form');
-            transferOwnershipForm.id = 'transferOwnership';
-            transferOwnershipForm.innerHTML = `
+            const template = `
                 <h3>Transfer Ownership</h3>
                 
                 <div>
@@ -229,10 +245,9 @@ const App = {
 
                 ${isOwner ? '<button type="submit">Transfer Ownership</button>' : 'You are not owner'}
             `;
-            if (isOwner) {
-                transferOwnershipForm.addEventListener('submit', async (evt) => {
-                    evt.preventDefault();
 
+            createManager('transferOwnershipForm', template, async (evt) => {
+                if (isOwner) {
                     const address = transferOwnershipForm.querySelector('#transferOwnership_address').value;
 
                     const tx = await contract.transferOwnership(address, {
@@ -240,22 +255,19 @@ const App = {
                     });
 
                     console.log(tx);
-                    that.reloadManageToken();
-                });
-            }
-
-            appendManageForm(transferOwnershipForm);
+                    that.reloadManageToken(contractAddress);
+                }
+            });
         }
 
         {
-            const renounceOwnershipForm = document.createElement('form');
-            renounceOwnershipForm.id = 'renounceOwnershipForm';
-            renounceOwnershipForm.innerHTML = `
+            const template = `
                 <h3>Renounce Ownership</h3>
                 ${isOwner ? '<button type="submit">Renounce Ownership</button>' : 'You are not owner'}
             `;
-            if (isOwner) {
-                renounceOwnershipForm.addEventListener('submit', async (evt) => {
+
+            createManager('renounceOwnershipForm', template, async (evt) => {
+                if (isOwner) {
                     evt.preventDefault();
 
                     const tx = await contract.renounceOwnership({
@@ -263,14 +275,15 @@ const App = {
                     });
 
                     console.log(tx);
-                    that.reloadManageToken();
-                });
-            }
-
-            appendManageForm(renounceOwnershipForm);
+                    that.reloadManageToken(contractAddress);
+                }
+            });
         }
     },
 
+    // this will either get the first account or will request wallet to prompt for access
+    // this should be used everywhere that getting an account is needed, in case the
+    // wallet becomes disconnected during runtime.
     getAccount: async function() {
         const that = this;
 
@@ -291,6 +304,7 @@ const App = {
         });
     },
 
+    // handle the creation of a new token (when form is submitted)
     deploy: async function(
         tokenName,
         tokenSymbol, 
@@ -318,6 +332,8 @@ const App = {
         }
     },
     
+    // creates transaction using truffle
+    // wallet will ask permission to broadcast
     deployContract: async function(
         tokenName,
         tokenSymbol, 
@@ -343,8 +359,10 @@ const App = {
         return contract;
     },
 
-    forceWatchAsset: async function(contractAddress, tokenSymbol, decimals, tokenImage) {
-        while (! await ethereum.request({
+
+    // will request wallet to ask user to add asset to track
+    requestWalletToTrackAsset: async function(contractAddress, tokenSymbol, decimals, tokenImage) {
+        return await ethereum.request({
             method: 'wallet_watchAsset',
             params: {
                 type: 'ERC20',
@@ -355,7 +373,12 @@ const App = {
                     image: tokenImage,
                 },
             },
-        }));
+        });
+    },
+
+    // continuosly request to add asset to wallet
+    forceWatchAsset: async function(contractAddress, tokenSymbol, decimals, tokenImage) {
+        while (! await requestWalletToTrackAsset(contractAddress, tokenSymbol, decimals, tokenImage));
     },
 };
 
