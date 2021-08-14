@@ -13,16 +13,65 @@
     <body class="">
         <section>
             <h1>smartSLP Token Manager Help</h1>
-            <p><a href="/">Click here to go back</a></p>
+            <p><a href="index.html">Click here to go back</a></p>
         </section>
 
         <section>
             <h2>What is smartSLP?</h2>
             <p>
-            smartSLP are simple ERC20 tokens that have the ability for the creator to mint new tokens (and end the ability to issue new tokens) and for users to burn tokens. They also have a predictable supply mechanism (they are created with X tokens off the bat), whereas ERC20 does not specify a supply mechanism. For tokens that do not need advanced smart contract capability, creating a token using smartSLP is likely all you need to do to start. smartSLP tokens also allow for the inclusion of documentUri's, which makes it easy to notarize something.
+            smartSLP are simple SEP20 (smartBCH's version of SEP20) tokens that have the ability for the creator to mint new tokens (and end the ability to issue new tokens) and for users to burn tokens. They also have a predictable supply mechanism (they are created with X tokens off the bat), whereas SEP20 does not specify a supply mechanism. For tokens that do not need advanced smart contract capability, creating a token using smartSLP is likely all you need to do to start. smartSLP tokens also allow for the inclusion of documentUri's, which makes it easy to notarize something.
             </p>
             <p>
             smartSLP is built on top of smartBCH. By maintaining the smartBCH interface, you can customize this smartSLP manager and add additional advanced functionality on-top of what smartSLP already provides. The manager interface made for smartSLP is designed to be incredibly simple to extend for any additional management of custom token functionality added (such as staking mechanisms, voting, etc.).
+            </p>
+        </section>
+
+        <section>
+            <h2>Create Mainnet Token</h2>
+
+            <h3>Install MetaMask</h3>
+            <p>
+            To install MetaMask for Chrome, go to the <a href="https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn" target="_blank">Chrome Web Store</a> and click the Add to Chrome button.
+            </p>
+
+            <h3>Get smartBCH for fees</h3>
+            <p>
+            smartBCH can be exchanged using <a href="https://coinflex.com">CoinFLEX's bridge</a>. Just sign up using MetaMask. Ensure you are using the Ethereum network to signup.
+            <br>
+            <br>
+            Note: CoinFLEX does not accept customers from tyrannical regimes, so if you are unfortunate to live in one of those, it may make more sense to request to trade smartBCH with someone you know who already has some.
+            </p>
+
+            <p>
+            Once you have registered, you can deposit BCH to CoinFLEX. Ensure the amount is less than $10,000 USD if you want to avoid KYC. 
+            <br>
+            <br>
+            <img src="img/coinflex-deposit-bch.png">
+            </p>
+
+            <p>
+            Once the BCH has sufficient confirmations, you will be able to withdraw smartBCH. Just select BCH then switch the toggle from BCH to SEP20. Enter your smartBCH address and CoinFLEX will process your withdrawal.
+            <br>
+            <br>
+            <img src="img/coinflex-withdraw-smartbch.png">
+            </p>
+
+            <h3>Add smartBCH Chain</h3>
+            <p>
+            Go to <a href="https://chainlist.org/">chainlist.org</a> and type "smartbch" into the search bar. First click "Connect Wallet" and approve. Then, Click on the "Add To Metamask" button.
+            <br>
+            <br>
+            <img src="img/chainlist-select-network.png">
+            </p>
+
+            <h3>Create your token</h3>
+            <p>
+            Now you are all ready to make your first SEP20 token. Navigate back to <a href="https://smartbch.fountainhead.cash/smartslp">https://smartbch.fountainhead.cash/smartslp</a> and fill out the form with the values you want for your token, make sure they are correct as you will not be able to change them.
+            </p>
+
+            <h3>Manage your token</h3>
+            <p>
+            Enter your tokens contract address into the "Manage Token" pane to perform any admin tasks needed. Simple as that.
             </p>
         </section>
 
@@ -47,19 +96,19 @@
             <p>
             To use Ganache with MetaMask, click the MetaMask icon in your browser and this screen will appear:
             <br>
-            <img src="/img/metamask-create-password.png">
+            <img src="img/metamask-create-password.png">
             </p>
 
             <p>
             Click Import with seed phrase. In the box marked Wallet Seed, enter the mnemonic that was displayed when launching Ganache.
             <br>
-            <img src="/img/metamask-seed-phrase.png">
+            <img src="img/metamask-seed-phrase.png">
             </p>
 
             <p>
             Now we need to connect MetaMask to the blockchain created by Ganache. Click the menu that shows "Main Network" and select Custom RPC.
             <br>
-            <img src="/img/metamask-select-network.png">
+            <img src="img/metamask-select-network.png">
             </p>
 
             <p>
@@ -73,12 +122,6 @@
             <p>
             You are now ready to create a token!
             </p>
-        </section>
-
-        <section>
-            <h2>Create Mainnet Token</h2>
-
-            <p>Wait for smartBCH to launch :)<p>
         </section>
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.4.0/web3.min.js"></script>

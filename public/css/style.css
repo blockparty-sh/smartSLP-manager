@@ -45,6 +45,10 @@ input {
     background: none;
 }
 
+input:disabled {
+    background-color: #7b7b7b;
+}
+
 input::placeholder {
     font-size: 0.8em;
 }
@@ -64,6 +68,10 @@ button {
     border: 2px solid #222;
     box-shadow: 8px 7px 0px #373742;
     border-radius: 2px;
+}
+
+button:disabled {
+    background-color: #7b7b7b;
 }
 
 button:hover {
@@ -141,4 +149,14 @@ a {
 
 a:hover {
     color: #499ac1;
+}
+
+#incorrect-network {
+    position: fixed;
+    top: 0px;
+    right: 0px;
+    background-color: #F00;
+    color: #fff;
+    padding:2rem;
+    display: none;
 }

@@ -1,6 +1,9 @@
 const App = {
     web3Provider: null,
     contracts: {},
+    transactionParams: {
+        gasPrice: "10000000000", // 10 gwei
+    },
 
     init: async function() {
         if (typeof web3 === 'undefined') {
@@ -17,7 +20,7 @@ const App = {
                 Download from <a href="https://addons.mozilla.org/en-US/firefox/addon/ether-metamask/" target="_blank">Firefox Add-ons page</a>
                 </p>
             `);
-            this.web3Provider = new Web3.providers.HttpProvider('http://127.0.0.1:9545');
+            this.web3Provider = new Web3.providers.HttpProvider('https://smartbch.fountainhead.cash/mainnet');
             web3 = new Web3(this.web3Provider);
         } else {
             this.web3Provider = web3.currentProvider;
@@ -29,6 +32,22 @@ const App = {
 
         this.contracts.SmartSLP_v1 = TruffleContract(SmartSLP_v1Artifact);
         this.contracts.SmartSLP_v1.setProvider(this.web3Provider);
+
+        // provide live update checking of selected network
+        setInterval(async function() {
+            const id = await web3.eth.net.getId();
+
+            // smartbch
+            if (id === 10000) {
+                document.getElementById('incorrect-network').style.display = 'none';
+                document.querySelectorAll('button').forEach((el) => el.disabled = false);
+                document.querySelectorAll('input').forEach((el) => el.disabled = false);
+            } else {
+                document.getElementById('incorrect-network').style.display = 'initial';
+                document.querySelectorAll('button').forEach((el) => el.disabled = true);
+                document.querySelectorAll('input').forEach((el) => el.disabled = true);
+            }
+        }, 1000);
 
         return this.bindEvents();
     },
@@ -52,7 +71,11 @@ const App = {
             const documentUri  = createTokenForm.querySelector('#createToken_documentUri').value;
             let   documentHash = createTokenForm.querySelector('#createToken_documentHash').value;
             const decimals     = createTokenForm.querySelector('#createToken_decimals').value;
-            const initialQty   = createTokenForm.querySelector('#createToken_initialQty').value;
+            const initialQty = new BigNumber(
+                    createTokenForm.querySelector('#createToken_initialQty').value
+                ).multipliedBy(new BigNumber(`1e${decimals}`))
+                .toFixed();
+
 
             const tokenImage = 'http://placekitten.com/200/300';
 
@@ -138,9 +161,9 @@ const App = {
         const tokenStatsTable = document.createElement('table');
         tokenStatsTable.id = 'tokenStatsTable';
         for (const [key, value] of Object.entries({
-            totalSupply: totalSupply.toString(),
+            totalSupply: new BigNumber(totalSupply.toString()).div(`1e${decimals}`).toFixed(),
             owner,
-            balance: balance.toString(),
+            balance: new BigNumber(balance.toString()).div(`1e${decimals}`).toFixed(),
             tokenName,
             tokenSymbol,
             documentUri,
@@ -190,14 +213,19 @@ const App = {
             `;
 
             createManager('burnForm', template, async (evt) => {
-                const amount = burnForm.querySelector('#burnForm_amount').value;
+                const amount = new BigNumber(
+                        burnForm.querySelector('#burnForm_amount').value
+                    ).multipliedBy(new BigNumber(`1e${decimals}`))
+                    .toFixed();
 
                 const tx = await contract.burn(amount, {
-                    from: account,
+                    ...that.transactionParams,
+                    ...{
+                        from: account,
+                    },
                 });
 
                 console.log(tx);
-
                 that.reloadManageToken(contractAddress);
             });
         }
@@ -222,10 +250,16 @@ const App = {
             createManager('mintForm', template, async (evt) => {
                 if (isOwner) {
                     const address = mintForm.querySelector('#mintForm_address').value;
-                    const amount = mintForm.querySelector('#mintForm_amount').value;
+                    const amount = new BigNumber(
+                        mintForm.querySelector('#mintForm_amount').value
+                    ).multipliedBy(new BigNumber(`1e${decimals}`))
+                    .toFixed();
 
                     const tx = await contract.mint(address, amount, {
-                        from: account,
+                        ...that.transactionParams,
+                        ...{
+                            from: account,
+                        },
                     });
 
                     console.log(tx);
@@ -251,7 +285,10 @@ const App = {
                     const address = transferOwnershipForm.querySelector('#transferOwnership_address').value;
 
                     const tx = await contract.transferOwnership(address, {
-                        from: account,
+                        ...that.transactionParams,
+                        ...{
+                            from: account,
+                        },
                     });
 
                     console.log(tx);
@@ -271,7 +308,10 @@ const App = {
                     evt.preventDefault();
 
                     const tx = await contract.renounceOwnership({
-                        from: account,
+                        ...that.transactionParams,
+                        ...{
+                            from: account,
+                        },
                     });
 
                     console.log(tx);
@@ -352,7 +392,10 @@ const App = {
             decimals,
             initialQty,
             {
-                from: account,
+                ...this.transactionParams,
+                ...{
+                    from: account,
+                },
             }
         );
 
@@ -378,7 +421,7 @@ const App = {
 
     // continuosly request to add asset to wallet
     forceWatchAsset: async function(contractAddress, tokenSymbol, decimals, tokenImage) {
-        while (! await requestWalletToTrackAsset(contractAddress, tokenSymbol, decimals, tokenImage));
+        while (! await this.requestWalletToTrackAsset(contractAddress, tokenSymbol, decimals, tokenImage));
     },
 };
 
