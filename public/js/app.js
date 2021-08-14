@@ -27,7 +27,7 @@ const App = {
             web3 = new Web3(web3.currentProvider);
         }
 
-        const response = await fetch('SmartSLP_v1.json');
+        const response = await fetch('build/SmartSLP_v1.json');
         const SmartSLP_v1Artifact = await response.json();
 
         this.contracts.SmartSLP_v1 = TruffleContract(SmartSLP_v1Artifact);

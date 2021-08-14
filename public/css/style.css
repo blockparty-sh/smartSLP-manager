@@ -4,7 +4,7 @@ body {
     padding: 0.5em;
     margin: 0;
     background-color: #222;
-    background-image: url(/img/bg.png);
+    background-image: url(../img/bg.png);
 }
 
 section {
