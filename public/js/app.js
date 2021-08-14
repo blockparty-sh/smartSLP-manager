@@ -106,7 +106,7 @@ const App = {
                 <br>
                 <pre>${contract.address}</pre>
                 <br>
-                <a href="#${contract.transactionHash}">View on Explorer</a>
+                <a href="https://www.smartscan.cash/address/${contract.address}">View on Explorer</a>
             `);
 
             manageTokenForm.querySelector('#manageToken_contractAddress').value = contract.address;
