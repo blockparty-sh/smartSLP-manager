@@ -34,20 +34,32 @@ const App = {
         this.contracts.SmartSLP_v1 = TruffleContract(SmartSLP_v1Artifact);
         this.contracts.SmartSLP_v1.setProvider(this.web3Provider);
 
+        const that = this;
         // provide live update checking of selected network
+        let lastNetworkId = null;
         setInterval(async function() {
+            const SMARTBCH_NETWORK_ID         = 10000;
+            const SMARTBCH_TESTNET_NETWORK_ID = 10001;
+            const GANACHE_NETWORK_ID          = 5777;
+
             const id = await web3.eth.net.getId();
 
-            // smartbch
-            if (id === 10000) {
+            if (id === lastNetworkId) {
+                return;
+            }
+
+            if (id === SMARTBCH_NETWORK_ID
+             || id === SMARTBCH_TESTNET_NETWORK_ID
+             || id === GANACHE_NETWORK_ID
+            ) {
                 document.getElementById('incorrect-network').style.display = 'none';
-                document.querySelectorAll('button').forEach((el) => el.disabled = false);
-                document.querySelectorAll('input').forEach((el) => el.disabled = false);
+                that.toggleFormDisabled(false);
             } else {
                 document.getElementById('incorrect-network').style.display = 'initial';
-                document.querySelectorAll('button').forEach((el) => el.disabled = true);
-                document.querySelectorAll('input').forEach((el) => el.disabled = true);
+                that.toggleFormDisabled(true);
             }
+
+            lastNetworkId = id;
         }, 1000);
 
         return this.bindEvents();
@@ -92,6 +104,7 @@ const App = {
                 documentHash = '0x' + documentHash;
             }
 
+            that.toggleFormDisabled(true);
             const contract = await that.deploy(
                 tokenName,
                 tokenSymbol,
@@ -101,6 +114,12 @@ const App = {
                 initialQty,
                 tokenImage,
             );
+
+            // cancelled
+            if (typeof contract === 'undefined') {
+                that.toggleFormDisabled(false);
+                return;
+            }
 
             that.showModal('Token Created', `
                 Make sure to save your contract address:
@@ -119,6 +138,7 @@ const App = {
 
         manageTokenForm.addEventListener('submit', async (evt) => {
             evt.preventDefault();
+
             const contractAddress = manageTokenForm.querySelector('#manageToken_contractAddress').value;
             that.reloadManageToken(contractAddress);
         });
@@ -136,7 +156,7 @@ const App = {
     // either called after tx that modifies the token
     // or when the manage token form is submitted with a contract address
     reloadManageToken: async function(contractAddress) {
-        const that = this;
+        this.toggleFormDisabled(false);
 
         const account = await this.getAccount();
 
@@ -201,6 +221,7 @@ const App = {
             manageTokenData.appendChild(section);
         }
 
+        const that = this;
         {
             const template = `
                 <h3>Burn Tokens</h3>
@@ -214,19 +235,26 @@ const App = {
             `;
 
             createManager('burnForm', template, async (evt) => {
+                that.toggleFormDisabled(true);
+
                 const amount = new BigNumber(
                         burnForm.querySelector('#burnForm_amount').value
                     ).multipliedBy(new BigNumber(`1e${decimals}`))
                     .toFixed();
 
-                const tx = await contract.burn(amount, {
-                    ...that.transactionParams,
-                    ...{
-                        from: account,
-                    },
-                });
+                try {
+                    const tx = await contract.burn(amount, {
+                        ...that.transactionParams,
+                        ...{
+                            from: account,
+                        },
+                    });
 
-                console.log(tx);
+                    console.log(tx);
+                } catch (e) {
+                    console.error(e);
+                }
+
                 that.reloadManageToken(contractAddress);
             });
         }
@@ -242,20 +270,24 @@ const App = {
 
                 <div>
                     <label for="mintForm_amount">Amount:</label>
-                    <input type="number" id="mintForm_amount" value="1">
+                    <input type="number" id="mintForm_amount" value="0">
                 </div>
 
                 ${isOwner ? '<button type="submit">Mint</button>' : 'You are not owner'}
             `;
 
             createManager('mintForm', template, async (evt) => {
-                if (isOwner) {
-                    const address = mintForm.querySelector('#mintForm_address').value;
-                    const amount = new BigNumber(
-                        mintForm.querySelector('#mintForm_amount').value
-                    ).multipliedBy(new BigNumber(`1e${decimals}`))
-                    .toFixed();
+                if (! isOwner) {
+                    return;
+                }
+                that.toggleFormDisabled(true);
+                const address = mintForm.querySelector('#mintForm_address').value;
+                const amount = new BigNumber(
+                    mintForm.querySelector('#mintForm_amount').value
+                ).multipliedBy(new BigNumber(`1e${decimals}`))
+                .toFixed();
 
+                try {
                     const tx = await contract.mint(address, amount, {
                         ...that.transactionParams,
                         ...{
@@ -264,8 +296,11 @@ const App = {
                     });
 
                     console.log(tx);
-                    that.reloadManageToken(contractAddress);
+                } catch (e) {
+                    console.error(e);
                 }
+
+                that.reloadManageToken(contractAddress);
             });
         }
 
@@ -282,9 +317,12 @@ const App = {
             `;
 
             createManager('transferOwnershipForm', template, async (evt) => {
-                if (isOwner) {
-                    const address = transferOwnershipForm.querySelector('#transferOwnership_address').value;
-
+                if (! isOwner) {
+                    return;
+                }
+                that.toggleFormDisabled(true);
+                const address = transferOwnershipForm.querySelector('#transferOwnership_address').value;
+                try {
                     const tx = await contract.transferOwnership(address, {
                         ...that.transactionParams,
                         ...{
@@ -293,8 +331,11 @@ const App = {
                     });
 
                     console.log(tx);
-                    that.reloadManageToken(contractAddress);
+                } catch (e) {
+                    console.error(e);
                 }
+
+                that.reloadManageToken(contractAddress);
             });
         }
 
@@ -305,9 +346,12 @@ const App = {
             `;
 
             createManager('renounceOwnershipForm', template, async (evt) => {
-                if (isOwner) {
-                    evt.preventDefault();
+                if (! isOwner) {
+                    return;
+                }
+                that.toggleFormDisabled(true);
 
+                try {
                     const tx = await contract.renounceOwnership({
                         ...that.transactionParams,
                         ...{
@@ -316,8 +360,11 @@ const App = {
                     });
 
                     console.log(tx);
-                    that.reloadManageToken(contractAddress);
+                } catch (e) {
+                    console.error(e);
                 }
+
+                that.reloadManageToken(contractAddress);
             });
         }
     },
@@ -356,13 +403,22 @@ const App = {
         tokenImage,
     ) {
         try {
-            const contract = await this.deployContract(
+
+            const account = await this.getAccount();
+
+            const contract = await this.contracts.SmartSLP_v1.new(
                 tokenName,
-                tokenSymbol, 
+                tokenSymbol,
                 documentUri,
                 documentHash,
                 decimals,
                 initialQty,
+                {
+                    ...this.transactionParams,
+                    ...{
+                        from: account,
+                    },
+                }
             );
 
             await this.forceWatchAsset(contract.address, tokenSymbol, decimals, tokenImage);
@@ -373,37 +429,6 @@ const App = {
         }
     },
     
-    // creates transaction using truffle
-    // wallet will ask permission to broadcast
-    deployContract: async function(
-        tokenName,
-        tokenSymbol, 
-        documentUri,
-        documentHash,
-        decimals,
-        initialQty,
-    ) {
-        const account = await this.getAccount();
-
-        const contract = await this.contracts.SmartSLP_v1.new(
-            tokenName,
-            tokenSymbol,
-            documentUri,
-            documentHash,
-            decimals,
-            initialQty,
-            {
-                ...this.transactionParams,
-                ...{
-                    from: account,
-                },
-            }
-        );
-
-        return contract;
-    },
-
-
     // will request wallet to ask user to add asset to track
     requestWalletToTrackAsset: async function(contractAddress, tokenSymbol, decimals, tokenImage) {
         return await ethereum.request({
@@ -423,6 +448,11 @@ const App = {
     // continuosly request to add asset to wallet
     forceWatchAsset: async function(contractAddress, tokenSymbol, decimals, tokenImage) {
         while (! await this.requestWalletToTrackAsset(contractAddress, tokenSymbol, decimals, tokenImage));
+    },
+
+    toggleFormDisabled: function(disabled) {
+        document.querySelectorAll('button').forEach((el) => el.disabled = disabled);
+        document.querySelectorAll('input').forEach((el) => el.disabled = disabled);
     },
 };
 

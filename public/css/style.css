@@ -46,10 +46,14 @@ input {
 }
 
 input:disabled {
-    background-color: #7b7b7b;
+    background-color: #d8d8d8;
 }
 
 input::placeholder {
+    font-size: 0.8em;
+}
+
+input:disabled::placeholder {
     font-size: 0.8em;
 }
 
@@ -70,12 +74,13 @@ button {
     border-radius: 2px;
 }
 
-button:disabled {
-    background-color: #7b7b7b;
-}
-
 button:hover {
     cursor: pointer;
+}
+
+button:disabled {
+    background-color: #7b7b7b;
+    cursor: initial;
 }
 
 button:active {
