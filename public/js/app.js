@@ -20,7 +20,8 @@ const App = {
                 Download from <a href="https://addons.mozilla.org/en-US/firefox/addon/ether-metamask/" target="_blank">Firefox Add-ons page</a>
                 </p>
             `);
-            this.web3Provider = new Web3.providers.HttpProvider('https://smartbch.fountainhead.cash/mainnet');
+            // fallback to ganache
+            this.web3Provider = new Web3.providers.HttpProvider('http://127.0.0.1:7545');
             web3 = new Web3(this.web3Provider);
         } else {
             this.web3Provider = web3.currentProvider;
