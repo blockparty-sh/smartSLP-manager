@@ -2,7 +2,7 @@ const App = {
     web3Provider: null,
     contracts: {},
     transactionParams: {
-        gasPrice: "10000000000", // 10 gwei
+        gasPrice: "1050000000", // 10 gwei
     },
 
     init: async function() {
