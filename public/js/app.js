@@ -26,6 +26,39 @@ const App = {
         } else {
             this.web3Provider = web3.currentProvider;
             web3 = new Web3(web3.currentProvider);
+
+            // track if network has changed
+            let lastNetworkId = null;
+            async function checkNetwork() {
+                const SMARTBCH_NETWORK_ID         = 10000;
+                const SMARTBCH_TESTNET_NETWORK_ID = 10001;
+                const GANACHE_NETWORK_ID          = 5777;
+
+                const id = await web3.eth.net.getId();
+
+                if (id === lastNetworkId) {
+                    return;
+                }
+
+                if (id === SMARTBCH_NETWORK_ID
+                 || id === SMARTBCH_TESTNET_NETWORK_ID
+                 || id === GANACHE_NETWORK_ID
+                ) {
+                    document.getElementById('incorrect-network').style.display = 'none';
+                    that.toggleFormDisabled(false);
+                } else {
+                    document.getElementById('incorrect-network').style.display = 'initial';
+                    that.toggleFormDisabled(true);
+                }
+
+                lastNetworkId = id;
+            }
+            checkNetwork();
+
+            // detect Network account change
+            window.ethereum.on('networkChanged', (networkId) => {
+                checkNetwork();
+            });
         }
 
         const response = await fetch('build/SmartSLP_v1.json');
@@ -35,32 +68,6 @@ const App = {
         this.contracts.SmartSLP_v1.setProvider(this.web3Provider);
 
         const that = this;
-        // provide live update checking of selected network
-        let lastNetworkId = null;
-        setInterval(async function() {
-            const SMARTBCH_NETWORK_ID         = 10000;
-            const SMARTBCH_TESTNET_NETWORK_ID = 10001;
-            const GANACHE_NETWORK_ID          = 5777;
-
-            const id = await web3.eth.net.getId();
-
-            if (id === lastNetworkId) {
-                return;
-            }
-
-            if (id === SMARTBCH_NETWORK_ID
-             || id === SMARTBCH_TESTNET_NETWORK_ID
-             || id === GANACHE_NETWORK_ID
-            ) {
-                document.getElementById('incorrect-network').style.display = 'none';
-                that.toggleFormDisabled(false);
-            } else {
-                document.getElementById('incorrect-network').style.display = 'initial';
-                that.toggleFormDisabled(true);
-            }
-
-            lastNetworkId = id;
-        }, 1000);
 
         return this.bindEvents();
     },
