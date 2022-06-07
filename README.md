@@ -1,6 +1,6 @@
 # smartSLP Token Manager
 
-Token creation and management system for smartBCH, inspired by SLP and fully ERC20 compatible.
+Token creation and management system for smartBCH, inspired by SLP and fully SEP20 compatible.
 
 ## Features
 
@@ -29,7 +29,9 @@ Then install necessary deps:
 
 `npm i`
 
-Next run `npm run dev`
+Next run `npx truffle compile` to build the contracts.
+
+Then to start the UI run `npm run dev`
 
 ### Custom Tokens
 
